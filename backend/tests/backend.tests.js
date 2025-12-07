@@ -4,7 +4,7 @@ const {
   validator,
   testUser,
   validToken,
-} = require("../setupTests");
+} = require("./setUpTests");
 const request = require("supertest");
 
 describe("Express Server API Tests", () => {
