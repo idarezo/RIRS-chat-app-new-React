@@ -14,6 +14,9 @@ export default defineConfig({
       "react-dom": "react-dom",
       "react/jsx-runtime": "react/jsx-runtime",
     },
+    coverage: {
+      reporter: ["text", "html", "lcov"],
+    },
   },
   resolve: {
     dedupe: ["react", "react-dom"],
