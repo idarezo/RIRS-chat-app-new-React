@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../App";
 
 import "./ProfilePage.css";
 
@@ -12,9 +11,8 @@ const ProfilePage: React.FC = () => {
     lastName: "",
   });
 
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing] = useState(false);
   const navigate = useNavigate();
-  const { logout } = useAuth();
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -44,32 +42,6 @@ const ProfilePage: React.FC = () => {
       [name]: value,
     }));
   };
-
-  // const handleSave = () => {
-  //   const storedUser = localStorage.getItem("user");
-
-  //   if (storedUser) {
-  //     try {
-  //       const user = JSON.parse(storedUser);
-
-  //       const updatedUser = {
-  //         ...user,
-  //         firstName: userData.firstName,
-  //         lastName: userData.lastName,
-  //       };
-
-  //       localStorage.setItem("user", JSON.stringify(updatedUser));
-  //       setIsEditing(false);
-  //     } catch (error) {
-  //       console.error("Error saving user data:", error);
-  //     }
-  //   }
-  // };
-
-  // const handleLogout = () => {
-  //   logout();
-  //   navigate("/login");
-  // };
 
   return (
     <div className="profile-page-container">
