@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  backend:
+  backend-build:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -52,7 +52,7 @@ jobs:
           name: backend-build
           path: backend/build/
 
-  frontend:
+  frontend-build:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -99,7 +99,7 @@ jobs:
             frontend/build/
             frontend/dist/
 
-  docker:
+  docker-build-push:
     runs-on: ubuntu-latest
     needs: [backend, frontend]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
