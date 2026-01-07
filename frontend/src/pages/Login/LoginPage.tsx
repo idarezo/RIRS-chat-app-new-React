@@ -13,16 +13,19 @@ const LoginPage: React.FC = () => {
   const handleLogin = async (username: string, password: string) => {
     try {
       console.log("Attempting login with:", username);
-      const response = await fetch("http://localhost:3000/userLogin", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          emailValue: username,
-          psw: password,
-        }),
-      });
+      const response = await fetch(
+        "https://myapp-backend-latest-nd30.onrender.com/userLogin",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            emailValue: username,
+            psw: password,
+          }),
+        }
+      );
 
       // Try to parse as JSON, fallback to text if it fails
       let data;

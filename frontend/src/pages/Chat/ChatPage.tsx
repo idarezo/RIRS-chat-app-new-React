@@ -51,11 +51,14 @@ const ChatPage: React.FC = () => {
         return;
       }
 
-      const response = await axios.get("http://localhost:3000/messages", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.get(
+        "https://myapp-backend-latest-nd30.onrender.com/messages",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (response.data) {
         const currentUserEmail = currentUser?.email;
@@ -140,12 +143,16 @@ const ChatPage: React.FC = () => {
 
       console.log("Sending message with data:", messageData); // Debug log
 
-      await axios.post("http://localhost:3000/postMessage", messageData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
+      await axios.post(
+        "https://myapp-backend-latest-nd30.onrender.com/postMessage",
+        messageData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       setMessage("");
       // Fetch updated messages after sending
