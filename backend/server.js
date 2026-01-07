@@ -24,11 +24,12 @@ mongoose
 const app = express();
 app.use(
   cors({
-    origin: "*",
+    origin: ["https://rirs-chat-app-new-react.onrender.com"],
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
 app.use("/images", express.static(path.join(__dirname, "images")));
 app.set("trust proxy", 1);
 const port = 3000;
