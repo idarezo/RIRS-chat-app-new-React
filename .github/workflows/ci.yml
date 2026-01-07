@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main,production]
+    branches: [main, production]
   pull_request:
     branches: [main]
 
@@ -142,3 +142,6 @@ jobs:
     steps:
       - name: Trigger Render deploy (backend)
         run: curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_BACKEND }}"
+
+      - name: Trigger Render deploy (frontend)
+        run: curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_FRONTEND }}"
