@@ -9,20 +9,23 @@ const RegisterPage: React.FC = () => {
   const handleRegister = async (formData: RegisterFormData) => {
     const { username, email, password, lastName } = formData;
     try {
-      const response = await fetch("http://localhost:3000/userRegistracija", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          firstName: username.trim(),
-          lastName: lastName.trim() || "User",
-          emailValue: email,
-          psw: password,
-          rojstniDan: "",
-          genderValue: "",
-        }),
-      });
+      const response = await fetch(
+        "https://myapp-backend-latest-nd30.onrender.com/userRegistracija",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            firstName: username.trim(),
+            lastName: lastName.trim() || "User",
+            emailValue: email,
+            psw: password,
+            rojstniDan: "",
+            genderValue: "",
+          }),
+        }
+      );
 
       // Try to parse as JSON, fallback to text if it fails
       let data;
