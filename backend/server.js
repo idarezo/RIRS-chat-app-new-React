@@ -570,129 +570,72 @@ app.get(
 );
 
 app.post("/userRegistracija", async (req, res) => {
-  const url = req.protocol + "://" + req.get("host") + req.originalUrl;
-  const ips = req.ips && req.ips.length > 0 ? req.ips : [req.ip];
-  const salt = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash(req.body.psw, salt);
-
   try {
-    if (!validator.isEmail(req.body.emailValue)) {
-      logger.warn("Email adress sended for registration not valid.", {
-        url: url,
-        ip: req.ip,
-        resolvedIPs: ips,
-        timestamp: new Date().toISOString(),
-      });
-      return res.status(400).send("Credentials are not valid.");
-    }
-    const apiKey = process.env.ABSTRACT_API_KEY;
-    console.log("API key:", apiKey);
-    const responseValidEmail = await axios.get(
-      `https://emailvalidation.abstractapi.com/v1/?api_key=${apiKey}&email=${req.body.emailValue}`,
-      { timeout: 5000 }
-    );
-    if (responseValidEmail.status !== 200) {
-      logger.warn("Not valid format email passed", {
-        url: url,
-        ip: req.ip,
-        resolvedIPs: ips,
-        timestamp: new Date().toISOString(),
-      });
+    const { firstName, lastName, emailValue, psw, rojstniDan, genderValue } =
+      req.body;
 
-      console.error(
-        "Email validation API returned an error:",
-        responseValidEmail.status
-      );
-      return res
-        .status(400)
-        .json({ success: false, message: "Credentials not valid." });
-    }
-
-    const result = emailValidationResponseSchema.safeParse(
-      responseValidEmail.data
-    );
-    const parsedData = result.data;
-    if (!result.success) {
-      console.error("Napaka pri validaciji:", result.error.format());
-      logger.warn("Invalid request.", {
-        url: url,
-        ip: req.ip,
-        resolvedIPs: ips,
-        timestamp: new Date().toISOString(),
-      });
-      return res.status(404).send("Invalid request.");
-    }
-    const validEmail = parsedData.email;
-    if (req.body.emailValue !== validEmail) {
-      logger.warn("Invalid request.", {
-        url: url,
-        ip: req.ip,
-        resolvedIPs: ips,
-        timestamp: new Date().toISOString(),
-      });
+    // 1️⃣ Osnovna validacija
+    if (!firstName || !emailValue || !psw) {
       return res.status(400).json({
         success: false,
-        message: "Validation failed.",
+        message: "Missing required fields",
       });
-    }
-    if (
-      parsedData.deliverability !== "DELIVERABLE" ||
-      parsedData.is_disposable_email?.value === true ||
-      parsedData.is_role_email?.value === true ||
-      parsedData.is_valid_format?.value !== true ||
-      parsedData.is_mx_found?.value !== true ||
-      parsedData.is_smtp_valid?.value !== true
-    ) {
-      logger.warn("Invalid credentials.", {
-        url: url,
-        ip: req.ip,
-        resolvedIPs: ips,
-        timestamp: new Date().toISOString(),
-      });
-      //console.log("Invalid email address");
-      return res
-        .status(400)
-        .json({ success: false, message: "Email already in use." });
-    }
-    const existingUser = await User.findOne({ email: validEmail });
-    if (existingUser) {
-      logger.warn("User tried to use an email address that already exists.", {
-        url: url,
-        ip: req.ip,
-        resolvedIPs: ips,
-        timestamp: new Date().toISOString(),
-      });
-      return res.status(409).send("Invalid credentials.");
     }
 
+    if (!validator.isEmail(emailValue)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid email format",
+      });
+    }
+
+    if (psw.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 6 characters long",
+      });
+    }
+
+    // 2️⃣ Preveri, ali uporabnik že obstaja
+    const existingUser = await User.findOne({ email: emailValue });
+    if (existingUser) {
+      return res.status(409).json({
+        success: false,
+        message: "Email already in use",
+      });
+    }
+
+    // 3️⃣ Hash gesla
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(psw, salt);
+
+    // 4️⃣ Shrani novega uporabnika
     const newUser = new User({
       uuid: uuidv4(),
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
-      email: validEmail,
+      firstName: firstName.trim(),
+      lastName: lastName?.trim() || "User",
+      email: emailValue.toLowerCase(),
       password: hashedPassword,
-      phoneNumber: req.body.rojstniDan,
-      gender: req.body.genderValue,
+      phoneNumber: rojstniDan || "",
+      gender: genderValue || null,
     });
+
     await newUser.save();
-    return res.json({
+
+    // 5️⃣ OK odgovor
+    return res.status(201).json({
       success: true,
       message: "Registration successful",
-      newUser,
     });
   } catch (err) {
-    if (err.code === "ECONNABORTED") {
-      console.error("Email validation API request timed out");
-      return res
-        .status(504)
-        .json({ success: false, message: "Email validation timed out" });
-    }
-    console.error("Error saving user:", err);
-    return res
-      .status(500)
-      .send("Internal server error. Please try again later.");
+    console.error("Registration error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
   }
 });
+
 app.get("/", (req, res) => {
   res.send("Hello, world!");
 });
