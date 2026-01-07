@@ -27,7 +27,6 @@ const RegisterPage: React.FC = () => {
         }
       );
 
-      // Try to parse as JSON, fallback to text if it fails
       let data;
       const contentType = response.headers.get("content-type");
       if (contentType && contentType.includes("application/json")) {
